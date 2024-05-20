@@ -3,18 +3,21 @@ import { UserDto } from "../dtos/userDto";
 import { TokenDbOps } from "../models/tokenModel";
 import { ApiError } from "../errors/apiErrors";
 class TokenSer {
-  generateToken(userDto: UserDto) {
+  generateToken(userDto: UserDto): {
+    accessToken: string;
+    refreshToken: string;
+  } {
     try {
       const accessToken = jwt.sign(
         { ...userDto },
-        process.env.JWT_ACCESS_TOKEN as string,
+        process.env.JWT_ACCESS_TOKEN_SECRET as string,
         {
           expiresIn: "1h",
         }
       );
       const refreshToken = jwt.sign(
         { ...userDto },
-        process.env.JWT_REFRESH_TOKEN as string,
+        process.env.JWT_REFRESH_TOKEN_SECRET as string,
         {
           expiresIn: "30d",
         }
@@ -29,42 +32,57 @@ class TokenSer {
     }
   }
 
-  async saveToken(userDto: UserDto, refreshToken: string) {
+  async saveToken(userDto: UserDto, refreshToken: string, accessToken: string) {
     try {
       const tokenFound = await TokenDbOps.findTokenByUserId(userDto);
+
       if (tokenFound) {
-        tokenFound.set({ refreshToken: refreshToken });
+        tokenFound.set({ refreshToken, accessToken });
         tokenFound.save();
+        return tokenFound;
       }
-      const token = await TokenDbOps.createToken(userDto, refreshToken);
+      const token = await TokenDbOps.createToken(
+        userDto,
+        refreshToken,
+        accessToken
+      );
       return token;
     } catch (error) {
       throw ApiError.internal("token save failed");
     }
   }
 
-  validateAccessToken(accessToken: string) {
-    try {
-      const userDto = jwt.verify(
-        accessToken,
-        process.env.JWT_ACCESS_TOKEN as string
-      );
-      return userDto;
-    } catch (error) {
-      throw ApiError.internal("Access token validation failed");
-    }
+  validateAccessToken(accessToken: string): UserDto {
+    let user: UserDto = {} as UserDto;
+    jwt.verify(
+      accessToken,
+      process.env.JWT_ACCESS_TOKEN_SECRET as string,
+      (err, jwtPayload) => {
+        if (err) {
+          console.log("JWT Error", err);
+
+          throw ApiError.unauthenticated(err.message);
+        }
+        user = jwtPayload as UserDto;
+      }
+    );
+
+    return user;
   }
 
   validateRefreshToken(refreshToken: string) {
-    try {
-      const userDto = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_TOKEN as string
-      );
-      return userDto;
-    } catch (error) {
-      throw ApiError.internal("Access token validation failed");
-    }
+    let user: UserDto = {} as UserDto;
+    jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_TOKEN_SECRET as string,
+      (err, jwtPayload) => {
+        if (err) {
+          throw ApiError.unauthenticated("refresh token validation failed");
+        }
+        user = jwtPayload as UserDto;
+      }
+    );
+    return user;
   }
 }
 

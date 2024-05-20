@@ -27,6 +27,6 @@ export class ApiError extends Error {
   }
 }
 
-export function handleError(error: unknown, next:NextFunction) {
-   next(error);
+export function handleError(error: unknown, next: NextFunction) {
+  next(error);
 }

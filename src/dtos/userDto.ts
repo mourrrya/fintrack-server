@@ -1,11 +1,10 @@
-import { UserModelI } from "../interfaces/userInterface";
-
+import { IUserModel } from "../types/userType";
 export class UserDto {
   id: number;
-  userName: string;
+  username: string;
 
-  constructor(model: UserModelI) {
+  constructor(model: IUserModel) {
     this.id = model.id || 0;
-    this.userName = model.username;
+    this.username = model.username;
   }
 }

@@ -7,7 +7,7 @@ export const errorHandlerMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error(err);
+  console.error("error-handler", err);
 
   if (isErrorInstance(err)) {
     return res.status(err.status).json({ message: err.message });

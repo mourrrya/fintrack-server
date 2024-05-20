@@ -2,8 +2,8 @@ import bcrypt from "bcrypt";
 import { UserDto } from "../dtos/userDto";
 import { ApiError } from "../errors/apiErrors";
 import { UserDbOps } from "../models/userModel";
+import { ITokenModel } from "../types/tokenType";
 import { TokenService } from "./tokenServices";
-import { TokenModelI } from "../interfaces/tokenInterface";
 
 class UserSer {
   async signup(
@@ -11,7 +11,7 @@ class UserSer {
     pass: string
   ): Promise<{
     user: UserDto;
-    token: TokenModelI;
+    token: ITokenModel;
   }> {
     const userFound = await UserDbOps.findUserByUsername(username);
     if (userFound) {
@@ -24,10 +24,11 @@ class UserSer {
 
     const userDto = new UserDto(user.toJSON());
 
-    const generatedToken = TokenService.generateToken(userDto);
+    const { accessToken, refreshToken } = TokenService.generateToken(userDto);
     const savedToken = await TokenService.saveToken(
       userDto,
-      generatedToken.refreshToken
+      refreshToken,
+      accessToken
     );
     return { user: userDto, token: savedToken.toJSON() };
   }
@@ -37,7 +38,7 @@ class UserSer {
     pass: string
   ): Promise<{
     user: UserDto;
-    token: TokenModelI;
+    token: ITokenModel;
   }> {
     const user = await UserDbOps.findUserByUsername(username);
 
@@ -55,10 +56,11 @@ class UserSer {
     }
 
     const userDto = new UserDto(user.toJSON());
-    const generatedToken = TokenService.generateToken(userDto);
+    const { accessToken, refreshToken } = TokenService.generateToken(userDto);
     const savedToken = await TokenService.saveToken(
       userDto,
-      generatedToken.refreshToken
+      refreshToken,
+      accessToken
     );
     return { user: userDto, token: savedToken.toJSON() };
   }

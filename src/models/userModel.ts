@@ -1,8 +1,8 @@
 import { DataTypes, Model, ModelStatic } from "sequelize";
 import { sequelize } from "../db";
-import { UserModelI } from "../interfaces/userInterface";
+import { IUserModel } from "../types/userType";
 
-export const UserModel: ModelStatic<Model<UserModelI>> = sequelize.define(
+export const UserModel: ModelStatic<Model<IUserModel>> = sequelize.define(
   "user",
   {
     username: {
@@ -20,14 +20,14 @@ class User {
   async createUser(
     username: string,
     password: string
-  ): Promise<Model<UserModelI>> {
+  ): Promise<Model<IUserModel>> {
     const user = await UserModel.create({ password, username });
     return user;
   }
 
   async findUserByUsername(
     username: string
-  ): Promise<Model<UserModelI> | null> {
+  ): Promise<Model<IUserModel> | null> {
     const user = await UserModel.findOne({ where: { username } });
     return user || null;
   }
