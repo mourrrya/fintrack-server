@@ -2,11 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import { CONSTANTS } from "../constants/constants";
 import { UserDto } from "../dtos/userDto";
 import { ApiError, handleError } from "../errors/apiErrors";
-import { UserDbOps } from "../models/userModel";
 import { TokenService } from "../services/tokenServices";
 import { UserService } from "../services/userServices";
 import { IUserModel, UserRes } from "../types/userType";
-import { isEmpty } from "lodash";
 
 class UserControl {
   async signup(
@@ -25,14 +23,15 @@ class UserControl {
         return;
       }
       const userAndToken = await UserService.signup(username, password);
-      res.cookie(
-        CONSTANTS.REFRESH_TOKEN_COOKIE_KEY,
-        userAndToken.token.refreshToken
-      );
-      res.json({
-        ...userAndToken.user,
-        accessToken: userAndToken.token.accessToken,
-      });
+      res
+        .cookie(
+          CONSTANTS.REFRESH_TOKEN_COOKIE_KEY,
+          userAndToken.token.refreshToken
+        )
+        .json({
+          ...userAndToken.user,
+          accessToken: userAndToken.token.accessToken,
+        });
     } catch (error) {
       handleError(error, next);
     }
@@ -54,14 +53,15 @@ class UserControl {
         return;
       }
       const userAndToken = await UserService.login(username, password);
-      res.cookie(
-        CONSTANTS.REFRESH_TOKEN_COOKIE_KEY,
-        userAndToken.token.refreshToken
-      );
-      res.json({
-        ...userAndToken.user,
-        accessToken: userAndToken.token.accessToken,
-      });
+      res
+        .cookie(
+          CONSTANTS.REFRESH_TOKEN_COOKIE_KEY,
+          userAndToken.token.refreshToken
+        )
+        .json({
+          ...userAndToken.user,
+          accessToken: userAndToken.token.accessToken,
+        });
     } catch (error) {
       handleError(error, next);
     }
@@ -81,14 +81,22 @@ class UserControl {
         refreshToken,
         accessToken
       );
-      res.cookie(CONSTANTS.REFRESH_TOKEN_COOKIE_KEY, refreshToken);
-      res.json({
+      res.cookie(CONSTANTS.REFRESH_TOKEN_COOKIE_KEY, refreshToken).json({
         ...userDto,
         accessToken: savedToken.getDataValue("accessToken"),
       });
     } catch (error) {
       handleError(error, next);
     }
+  }
+
+  async me(req: Request, res: Response<UserDto>, next: NextFunction) {
+    try {
+      if (!req.user) {
+        return next(ApiError.badRequest("User not found"));
+      }
+      res.json(req.user);
+    } catch (error) {}
   }
 }
 

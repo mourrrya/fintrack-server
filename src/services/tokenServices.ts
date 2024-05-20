@@ -59,11 +59,12 @@ class TokenSer {
       process.env.JWT_ACCESS_TOKEN_SECRET as string,
       (err, jwtPayload) => {
         if (err) {
-          console.log("JWT Error", err);
-
           throw ApiError.unauthenticated(err.message);
         }
-        user = jwtPayload as UserDto;
+        if (!jwtPayload || typeof jwtPayload === "string") {
+          throw new Error("Invalid JWT payload");
+        }
+        user = new UserDto(jwtPayload);
       }
     );
 
@@ -79,7 +80,10 @@ class TokenSer {
         if (err) {
           throw ApiError.unauthenticated("refresh token validation failed");
         }
-        user = jwtPayload as UserDto;
+        if (!jwtPayload || typeof jwtPayload === "string") {
+          throw ApiError.unauthenticated("Invalid JWT payload");
+        }
+        user = new UserDto(jwtPayload);
       }
     );
     return user;
