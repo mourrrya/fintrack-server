@@ -1,0 +1,36 @@
+import { DataTypes, Model, ModelStatic } from "sequelize";
+import { sequelize } from "../db";
+import { UserModelI } from "../interfaces/userInterface";
+
+export const UserModel: ModelStatic<Model<UserModelI>> = sequelize.define(
+  "user",
+  {
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING,
+    },
+  }
+);
+
+class User {
+  async createUser(
+    username: string,
+    password: string
+  ): Promise<Model<UserModelI>> {
+    const user = await UserModel.create({ password, username });
+    return user;
+  }
+
+  async findUserByUsername(
+    username: string
+  ): Promise<Model<UserModelI> | null> {
+    const user = await UserModel.findOne({ where: { username } });
+    return user || null;
+  }
+}
+
+export const UserDbOps = new User();
