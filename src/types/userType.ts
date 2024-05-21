@@ -8,4 +8,5 @@ export interface IUserModel {
 
 export interface UserRes extends UserDto {
   accessToken: string;
+  refreshToken: string;
 }

@@ -12,7 +12,7 @@ class TokenSer {
         { ...userDto },
         process.env.JWT_ACCESS_TOKEN_SECRET as string,
         {
-          expiresIn: "1h",
+          expiresIn: "2h",
         }
       );
       const refreshToken = jwt.sign(
