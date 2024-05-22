@@ -10,7 +10,7 @@ export const TransactionModal: ModelStatic<Model<ITransactionModal>> =
       allowNull: false,
     },
     transactionAmount: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     transactionType: {

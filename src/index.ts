@@ -11,12 +11,7 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use("/", router);
 
@@ -30,7 +25,7 @@ const start = async () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
