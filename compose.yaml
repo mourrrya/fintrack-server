@@ -9,6 +9,7 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
+    container_name: fin-track-server
     build:
       context: .
     ports:
@@ -23,6 +24,7 @@ services:
       - db
 
   db:
+    container_name: fin-track-db
     image: postgres:latest
     restart: always
     environment:
