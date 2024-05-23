@@ -33,9 +33,9 @@ Create an environment `.env` file in the root directory of your project. Add the
 ## Usage
 
 To run the application in development mode:
-- `npm run start`
+- `npm run dev`
   or
-- `yarn run start`
+- `yarn run dev`
 
 ## Docker
 
